@@ -32,12 +32,12 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/events" element={<EventsPage_ />} />
+        <Route path="/events" element={<EventsPage />} />
         <Route
           path="/events/:slug/shows/:showId"
-          element={<SeatSelectionPage_ />}
+          element={<SeatSelectionPage />}
         />
-        <Route path="/confirmation/:orderRef" element={<ConfirmationPage_ />} />
+        <Route path="/confirmation/:orderRef" element={<ConfirmationPage />} />
       </Routes>
     </BrowserRouter>
   );
