@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Google Fonts ───────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+
+/* ── CSS Custom Properties ──────────────────────── */
+:root {
+  --sumi:        #1A1C1A;
+  --washi:       #FAF9F6;
+  --urushi:      #800020;
+  --urushi-deep: #570013;
+  --shadow-hard: 4px 4px 0px 0px #1A1C1A;
+  --shadow-sm:   2px 2px 0px 0px #1A1C1A;
+  --border-std:  2px solid #1A1C1A;
+  --transition:  cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+/* ── Base Reset ─────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  /* Enforce zero radius at the DOM level as a safety net */
+  border-radius: 0 !important;
+}
+
+/* Exception: explicit pill class only */
+.pill { border-radius: 9999px !important; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background-color: var(--washi);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  color: var(--sumi);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Selection color ────────────────────────────── */
+::selection {
+  background: var(--urushi);
+  color: #fff;
+}
+
+/* ── Typography utilities ───────────────────────── */
+.font-headline { font-family: 'Space Grotesk', sans-serif; }
+
+.tategaki {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ── Shadow utilities ───────────────────────────── */
+.hard-shadow        { box-shadow: var(--shadow-hard); }
+.hard-shadow-sm     { box-shadow: var(--shadow-sm); }
+.hard-shadow-white  { box-shadow: 4px 4px 0px 0px #fff; }
+.hard-shadow-urushi { box-shadow: 4px 4px 0px 0px var(--urushi); }
+
+/* ── Hover press effect ─────────────────────────── */
+.press-effect {
+  transition: box-shadow 0.1s var(--transition), transform 0.1s var(--transition);
+}
+.press-effect:hover {
+  box-shadow: var(--shadow-sm);
+  transform: translate(2px, 2px);
+}
+
+/* ── GSAP animation start states ────────────────── */
+.gsap-hidden {
+  opacity: 0;
+}
+
+/* ── Scrollbar styling ──────────────────────────── */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--washi); }
+::-webkit-scrollbar-thumb { background: var(--sumi); }
+::-webkit-scrollbar-thumb:hover { background: var(--urushi); }
