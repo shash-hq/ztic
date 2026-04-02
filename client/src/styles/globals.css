@@ -5,7 +5,6 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* ── CSS Custom Properties ──────────────────────── */
 :root {
   --sumi:        #1A1C1A;
@@ -82,3 +81,69 @@ body {
 ::-webkit-scrollbar-track { background: var(--washi); }
 ::-webkit-scrollbar-thumb { background: var(--sumi); }
 ::-webkit-scrollbar-thumb:hover { background: var(--urushi); }
+
+/* ── Layout Grids (Desktop Defaults) ────────────── */
+.seats-body-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 48px;
+}
+
+.confirmation-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 48px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ── Mobile responsive overrides ───────────────── */
+@media (max-width: 768px) {
+  /* Seat map: allow horizontal scroll on small screens */
+  .zen-map-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Seat selection page: stack grid vertically */
+  .seats-body-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Confirmation page: stack grid vertically */
+  .confirmation-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Bento grid: single column */
+  .bento-grid-responsive {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto !important;
+  }
+  .bento-grid-responsive > * {
+    grid-column: span 1 !important;
+    grid-row: span 1 !important;
+    height: 280px !important;
+  }
+
+  /* Nav: hide secondary links on very small screens */
+  .nav-links-mobile {
+    display: none;
+  }
+
+  /* Ticket summary: remove sticky on mobile */
+  .summary-sticky-override {
+    position: static !important;
+  }
+}
+
+/* ── Skeleton pulse ─────────────────────────────── */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
