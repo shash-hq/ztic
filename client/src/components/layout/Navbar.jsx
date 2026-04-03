@@ -1,12 +1,45 @@
 import {NavLink, useNavigate} from 'react-router-dom';
+import {useAuth} from '../../hooks/useAuth.js';
+import Tategaki from '../ui/Tategaki.jsx';
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const {user, isAuthenticated, logout} = useAuth();
+
+  const navLinkStyle = ({isActive}) => ({
+    fontFamily: 'Space Grotesk, sans-serif',
+    fontWeight: 700,
+    fontSize: 11,
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    textDecoration: 'none',
+    padding: '4px 8px',
+    transition: 'all 0.1s',
+    color: isActive ? '#800020' : '#1A1C1A',
+    opacity: isActive ? 1 : 0.55,
+    borderBottom: isActive ? '2px solid #800020' : '2px solid transparent',
+  });
+
+  const iconBtnStyle = {
+    fontSize: 18,
+    padding: '6px 8px',
+    color: '#1A1C1A',
+    transition: 'all 0.1s',
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
+  };
 
   return (
     <nav
-      className="sticky top-0 z-50 flex justify-between items-center px-10 py-4"
       style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '14px 40px',
         background: 'rgba(250,249,246,0.88)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
@@ -15,14 +48,26 @@ export default function Navbar() {
       {/* Logo */}
       <button
         onClick={() => navigate('/')}
-        className="font-headline font-black text-sumi uppercase tracking-[0.15em] text-sm border-none bg-transparent cursor-pointer">
+        style={{
+          fontFamily: 'Space Grotesk, sans-serif',
+          fontWeight: 900,
+          fontSize: 13,
+          letterSpacing: '0.15em',
+          textTransform: 'uppercase',
+          color: '#1A1C1A',
+          border: 'none',
+          background: 'none',
+          cursor: 'pointer',
+        }}>
         ZTic
-        <span className="opacity-30 mx-2">—</span>
-        <span className="opacity-50 text-xs">Cinema | Events | Comedy</span>
+        <span style={{opacity: 0.3, margin: '0 8px'}}>—</span>
+        <span style={{opacity: 0.45, fontSize: 11}}>
+          Cinema | Events | Comedy
+        </span>
       </button>
 
-      {/* Nav Links */}
-      <div className="hidden md:flex gap-7">
+      {/* Centre links */}
+      <div style={{display: 'flex', gap: 4, alignItems: 'center'}}>
         {[
           {label: 'Cinema', to: '/?category=cinema'},
           {label: 'Events', to: '/events'},
@@ -31,28 +76,156 @@ export default function Navbar() {
           <NavLink
             key={label}
             to={to}
-            className={({isActive}) =>
-              `font-headline font-bold text-[11px] tracking-[0.18em] uppercase no-underline px-2 py-1 transition-all duration-100
-               ${
-                 isActive
-                   ? 'text-urushi border-b-2 border-urushi'
-                   : 'text-sumi opacity-55 hover:bg-urushi hover:text-white hover:opacity-100'
-               }`
-            }>
+            style={navLinkStyle}
+            onMouseEnter={e => {
+              if (!e.currentTarget.style.borderBottomColor.includes('800020')) {
+                e.currentTarget.style.background = '#800020';
+                e.currentTarget.style.color = '#fff';
+                e.currentTarget.style.opacity = '1';
+              }
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'none';
+              e.currentTarget.style.color = '';
+              e.currentTarget.style.opacity = '';
+            }}>
             {label}
           </NavLink>
         ))}
       </div>
 
-      {/* Icons */}
-      <div className="flex gap-3">
-        {['⌕', '◯'].map((icon, i) => (
-          <button
-            key={i}
-            className="text-lg px-2 py-1 text-sumi transition-all duration-100 hover:bg-urushi hover:text-white border-none bg-transparent cursor-pointer">
-            {icon}
-          </button>
-        ))}
+      {/* Right — auth state */}
+      <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+        {isAuthenticated ? (
+          <>
+            {/* Role badge */}
+            <span
+              style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: 8,
+                fontWeight: 700,
+                letterSpacing: '0.25em',
+                textTransform: 'uppercase',
+                background: user?.role === 'organizer' ? '#1A1C1A' : '#F4F3F1',
+                color:
+                  user?.role === 'organizer' ? '#fff' : 'rgba(26,28,26,0.5)',
+                padding: '3px 8px',
+                border: '2px solid #1A1C1A',
+              }}>
+              {user?.role}
+            </span>
+
+            {/* My Bookings */}
+            <button
+              onClick={() => navigate('/my-bookings')}
+              style={iconBtnStyle}
+              title="My Bookings"
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#800020';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'none';
+                e.currentTarget.style.color = '#1A1C1A';
+              }}>
+              ◈
+            </button>
+
+            {/* Organizer portal shortcut */}
+            {(user?.role === 'organizer' || user?.role === 'admin') && (
+              <button
+                onClick={() => navigate('/organizer')}
+                style={{
+                  ...iconBtnStyle,
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  padding: '6px 10px',
+                  border: '2px solid #1A1C1A',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = '#1A1C1A';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'none';
+                  e.currentTarget.style.color = '#1A1C1A';
+                }}>
+                Portal
+              </button>
+            )}
+
+            {/* Logout */}
+            <button
+              onClick={logout}
+              style={iconBtnStyle}
+              title="Logout"
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#800020';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'none';
+                e.currentTarget.style.color = '#1A1C1A';
+              }}>
+              ⊗
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => navigate('/login')}
+              style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontWeight: 700,
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                padding: '8px 16px',
+                border: '2px solid #1A1C1A',
+                background: 'none',
+                color: '#1A1C1A',
+                cursor: 'pointer',
+                transition: 'all 0.1s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#1A1C1A';
+                e.currentTarget.style.color = '#fff';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'none';
+                e.currentTarget.style.color = '#1A1C1A';
+              }}>
+              Sign In
+            </button>
+            <button
+              onClick={() => navigate('/login')}
+              style={{
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontWeight: 900,
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                padding: '8px 16px',
+                border: '2px solid #1A1C1A',
+                background: '#800020',
+                color: '#fff',
+                cursor: 'pointer',
+                boxShadow: '2px 2px 0 0 #1A1C1A',
+                transition: 'all 0.1s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = '#570013';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = '#800020';
+              }}>
+              Register →
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );
