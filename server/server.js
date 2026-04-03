@@ -14,6 +14,8 @@ import showRoutes from './routes/showRoutes.js';
 import seatRoutes from './routes/seatRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import { initSeatSocket } from './socket/seatSocket.js';
+import cookieParser from 'cookie-parser';
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -36,6 +38,7 @@ app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cookieParser());
 app.use('/api/v1', apiLimiter);
 
 // ── Routes ────────────────────────────────────
@@ -43,6 +46,7 @@ app.use('/api/v1/events', eventRoutes);
 app.use('/api/v1/shows', showRoutes);
 app.use('/api/v1/seats', seatRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
+app.use('/api/v1/auth', authRoutes);
 
 // ── Health Check ──────────────────────────────
 app.get('/api/health', (req, res) => {
