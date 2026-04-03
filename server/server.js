@@ -16,6 +16,7 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import { initSeatSocket } from './socket/seatSocket.js';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/authRoutes.js';
+import tenantRoutes from './routes/tenantRoutes.js';
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.use('/api/v1/shows', showRoutes);
 app.use('/api/v1/seats', seatRoutes);
 app.use('/api/v1/bookings', bookingRoutes);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/tenants', tenantRoutes);
 
 // ── Health Check ──────────────────────────────
 app.get('/api/health', (req, res) => {

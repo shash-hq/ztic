@@ -131,6 +131,35 @@ export default function Navbar() {
               ◈
             </button>
 
+            {/* Attendee Onboarding Shortcut */}
+            {user?.role === 'attendee' && (
+              <button
+                onClick={() => navigate('/organizer/onboard')}
+                style={{
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontWeight: 700,
+                  fontSize: 9,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  padding: '6px 10px',
+                  border: '2px solid rgba(26,28,26,0.3)',
+                  background: 'none',
+                  color: 'rgba(26,28,26,0.55)',
+                  cursor: 'pointer',
+                  transition: 'all 0.1s',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = '#800020';
+                  e.currentTarget.style.color = '#800020';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = 'rgba(26,28,26,0.3)';
+                  e.currentTarget.style.color = 'rgba(26,28,26,0.55)';
+                }}>
+                Become Organiser
+              </button>
+            )}
+
             {/* Organizer portal shortcut */}
             {(user?.role === 'organizer' || user?.role === 'admin') && (
               <button

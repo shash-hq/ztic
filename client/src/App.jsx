@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage.jsx';
 import MagicLinkPage from './pages/MagicLinkPage.jsx';
 import ForbiddenPage from './pages/ForbiddenPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
+import OrganizerOnboard from './pages/OrganizerOnboard.jsx';
 
 // Organizer portal placeholder — replaced in Phase 6
 const OrganizerPortal = () => (
@@ -49,6 +50,16 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ConfirmationPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected — any authenticated user can onboard as an organizer */}
+          <Route
+            path="/organizer/onboard"
+            element={
+              <ProtectedRoute>
+                <OrganizerOnboard />
               </ProtectedRoute>
             }
           />

@@ -15,7 +15,9 @@ const MAX_OTP_ATTEMPTS    = 3;
 const ACCESS_TOKEN_TTL    = '15m';
 const REFRESH_TOKEN_TTL   = '7d';
 const REFRESH_TTL_MS      = 7 * 24 * 60 * 60 * 1000;
-const COOKIE_OPTIONS = {
+
+// EXPORTED so tenantController can use it
+export const COOKIE_OPTIONS = {
   httpOnly: true,
   secure:   process.env.NODE_ENV === 'production',
   sameSite: 'strict',
@@ -28,15 +30,17 @@ const COOKIE_OPTIONS = {
 const generateOtp = () =>
   crypto.randomInt(100000, 999999).toString();
 
-const signAccessToken = (user) =>
+// EXPORTED so tenantController can issue new tokens
+export const signAccessToken = (user) =>
   jwt.sign(
     { sub: user._id, role: user.role, tenantId: user.tenantId ?? null },
     process.env.JWT_ACCESS_SECRET,
     { expiresIn: ACCESS_TOKEN_TTL }
   );
 
-const issueRefreshToken = async (userId, family) => {
-  const raw  = uuid();          // random UUID — stored as hash, returned raw once
+// EXPORTED so tenantController can issue new refresh tokens
+export const issueRefreshToken = async (userId, family) => {
+  const raw  = uuid();          
   const hash = await bcrypt.hash(raw, BCRYPT_ROUNDS);
   const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
   await RefreshToken.create({ userId, tokenHash: hash, family, expiresAt });
@@ -55,15 +59,12 @@ export const sendOtp = async (req, res, next) => {
       return next(createError('channel must be email, sms, or whatsapp', 400));
     }
 
-    // Delete any existing OTP for this contact to avoid accumulation
     await OtpToken.deleteMany({ contact });
 
     const otp     = generateOtp();
     const otpHash = await bcrypt.hash(otp, BCRYPT_ROUNDS);
 
     await OtpToken.create({ contact, otpHash, channel });
-
-    // Deliver via the selected channel
     await routeOtp(channel, contact, otp);
 
     res.json({ success: true, message: `OTP sent via ${channel}.` });
@@ -100,10 +101,8 @@ export const verifyOtp = async (req, res, next) => {
       return next(createError(`Invalid OTP. ${remaining} attempt(s) remaining.`, 401));
     }
 
-    // OTP correct — delete it immediately (single use)
     await OtpToken.deleteOne({ _id: record._id });
 
-    // Upsert user — first verify creates the account
     const isEmail = contact.includes('@');
     const query   = isEmail ? { email: contact } : { phone: contact };
     const update  = {
@@ -119,7 +118,6 @@ export const verifyOtp = async (req, res, next) => {
       setDefaultsOnInsert: true,
     });
 
-    // Issue token pair
     const family       = uuid();
     const accessToken  = signAccessToken(user);
     const refreshToken = await issueRefreshToken(user._id, family);
@@ -152,7 +150,6 @@ export const sendMagicLink = async (req, res, next) => {
     const { email } = req.body;
     if (!email) return next(createError('email is required', 400));
 
-    // Sign a short-lived token containing the email
     const token = jwt.sign({ email }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
     const link  = `${process.env.CLIENT_URL}/auth/magic?token=${token}`;
 
@@ -239,8 +236,6 @@ export const refreshAccessToken = async (req, res, next) => {
     const raw = req.cookies?.ztic_refresh;
     if (!raw) return next(createError('No refresh token', 401));
 
-    // Find all tokens in the DB and compare hashes
-    // We search by expiresAt > now to keep the scan narrow
     const validTokens = await RefreshToken.find({
       expiresAt: { $gt: new Date() },
     });
@@ -252,13 +247,10 @@ export const refreshAccessToken = async (req, res, next) => {
     }
 
     if (!matched) {
-      // Possible reuse attack — clear cookie and return 401
       res.clearCookie('ztic_refresh', { path: '/api/v1/auth' });
       return next(createError('Refresh token invalid or expired. Please log in again.', 401));
     }
 
-    // Reuse detection: if another token from the same family exists and was
-    // already consumed, invalidate the entire family
     const familyTokenCount = await RefreshToken.countDocuments({ family: matched.family });
     if (familyTokenCount > 1) {
       await RefreshToken.deleteMany({ family: matched.family });
@@ -266,7 +258,6 @@ export const refreshAccessToken = async (req, res, next) => {
       return next(createError('Token reuse detected. Session invalidated.', 401));
     }
 
-    // Rotate: delete old token, issue new pair
     await RefreshToken.deleteOne({ _id: matched._id });
 
     const user = await User.findById(matched.userId);
@@ -289,7 +280,6 @@ export const logout = async (req, res, next) => {
     const raw = req.cookies?.ztic_refresh;
 
     if (raw) {
-      // Best-effort deletion — find and remove the matching token
       const validTokens = await RefreshToken.find({ expiresAt: { $gt: new Date() } });
       for (const record of validTokens) {
         const isMatch = await bcrypt.compare(raw, record.tokenHash);
